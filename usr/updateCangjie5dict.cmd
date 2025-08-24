@@ -5,12 +5,6 @@ title 倉頡五代碼表智能更新器
 color 0a
 pushd %~dp0
 
-:: === 修改点：使用原生CMD命令最小化当前窗口 ===
-if not defined _MINIMIZED_ (
-    set "_MINIMIZED_=1"
-    start /min cmd /c "%~f0"
-    exit
-)
 
 :: 下载工具配置
 set "Curl_Download=curl -LJ --ssl-no-revoke --progress-bar --create-dirs"
