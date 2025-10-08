@@ -146,6 +146,7 @@ goto :eof
 
 :aniu.trime.yaml
 echo 下载aniu.trime.yaml
+::发布页面：https://github.com/goodaniu/rime-aniu/blob/main/aniu.trime.yaml
 %Curl_Download% -O "%GH_PROXY%/https://github.com/goodaniu/rime-aniu/raw/refs/heads/main/aniu.trime.yaml"
 goto :eof
 
