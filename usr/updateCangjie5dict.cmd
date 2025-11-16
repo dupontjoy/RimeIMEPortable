@@ -1,10 +1,10 @@
 :: 2025.05.27
 
 @echo off
+setlocal enabledelayedexpansion
 title 倉頡五代碼表智能更新器
 color 0a
 pushd %~dp0
-
 
 :: 下载工具配置
 set "Curl_Download=curl -LJ --ssl-no-revoke --progress-bar --create-dirs"
@@ -39,28 +39,30 @@ CALL "%cd%\..\..\..\Profiles\BackupProfiles\Modules\testGHmirror.cmd"
 goto :eof
 
 :check_version
-setlocal enabledelayedexpansion
 echo.&echo █ 正在检查cangjie5_dict版本...
 
 :: GitHub API 地址
 set "api_url=https://api.github.com/repos/Jackchows/Cangjie5/commits?path=Cangjie5.txt&page=1&per_page=1"
 
-:: 获取最新版本更新時间
-for /f %%i in ('powershell -Command "(Invoke-WebRequest -Uri '%api_url%' -UseBasicParsing | ConvertFrom-Json).commit.committer.date"') do (
+:: 获取最新 commit 时间（ISO 8601）
+for /f "delims=" %%i in ('powershell -Command "(Invoke-WebRequest -Uri '%api_url%' -UseBasicParsing | ConvertFrom-Json).commit.committer.date" 2^>nul') do (
     set "latest_version=%%i"
+)
+if not defined latest_version (
+    echo 错误：无法获取在线版本信息，请检查网络或代理设置。
+    pause
+    exit /b 1
 )
 echo 在线版本: %latest_version%
 
-:: 读取本地版本更新時间
+:: 读取本地版本
 set "local_version="
 if exist "%version_file%" (
-    for /f "usebackq delims=" %%i in ("%version_file%") do (
-        set "local_version=%%i"
-    )
+    for /f "usebackq delims=" %%i in ("%version_file%") do set "local_version=%%i"
 )
 echo 本地版本: %local_version%
 
-:: 比较版本
+:: 比较
 if "%latest_version%"=="%local_version%" (
     set "need_update=0"
 ) else (
@@ -68,29 +70,22 @@ if "%latest_version%"=="%local_version%" (
 )
 echo 版本比较结果: %need_update%
 
-endlocal & set "need_update=%need_update%" & set "latest_version=%latest_version%"
-
 goto :eof
 
 :update_cangjie5_dict
-setlocal enabledelayedexpansion
 echo. [下载] %GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt
-%Curl_Download% -O %GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt
+%Curl_Download% -O "%GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt"
 
-:: 智能文本替换系统 ======================
+if not exist "Cangjie5.txt" (
+    echo 错误：下载失败，Cangjie5.txt 未找到。
+    pause
+    exit /b 1
+)
+
 :: 生成头文件
 (
     echo # encoding: utf-8
-    echo ## 倉頡五代補完計劃：
-    echo # https://github.com/Jackchows/Cangjie5
-    echo # 使用前務必閱讀：
-    echo # https://github.com/Jackchows/Cangjie5/blob/master/README.md 及
-    echo # https://github.com/Jackchows/Cangjie5/blob/master/change_summary.md
-    echo #
-    echo # 相關項目：倉頡三代補完計畫
-    echo # https://github.com/Arthurmcarthur/Cangjie3-Plus
-    echo ##
-    echo ## 一般排序，綜合考慮字頻及繁簡，部分常用簡化字可能排在傳統漢字前面。
+    echo # https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt
     echo ---
     echo name: "cangjie5"
     echo version: "%latest_version%"
@@ -113,42 +108,111 @@ echo. [下载] %GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie
     echo       formula: "AaBzCaYzZz"
     echo   tail_anchor: "'"
     echo ...
-) > header.tmp
+) > "header.tmp"
 
-:: 查找目标行号（使用PowerShell处理UTF8编码）
-for /f %%i in ('powershell -Command "Get-Content Cangjie5.txt -Encoding UTF8 | Select-String '^日' | ForEach-Object { $_.LineNumber }"') do (
-    set /a "skip_lines=%%i-1"
+:: 更健壮的方法查找以"日	a"开头的行号
+echo 正在查找数据起始位置...
+for /f "delims=" %%i in ('powershell -Command ^
+    "$content = Get-Content 'Cangjie5.txt' -Encoding UTF8;" ^
+    "for ($i = 0; $i -lt $content.Length; $i++) {" ^
+        "if ($content[$i] -match '^日\ta') {" ^
+            "Write-Output $i;" ^
+            "break;" ^
+        "}" ^
+    "}"') do (
+    set /a "skip_lines=%%i"
 )
+
 if not defined skip_lines (
-    echo 错误：未找到以'日'开头的行
-    del Cangjie5.txt
-    pause
+    echo 错误：未在 Cangjie5.txt 中找到以"日	a"开头的行（用于数据起始标识）。
+    echo 正在尝试其他方法查找数据起始位置...
+    
+    :: 尝试查找第一个包含制表符的非空行
+    for /f "delims=" %%i in ('powershell -Command ^
+        "$content = Get-Content 'Cangjie5.txt' -Encoding UTF8;" ^
+        "for ($i = 0; $i -lt $content.Length; $i++) {" ^
+            "if ($content[$i] -match '\t' -and $content[$i].Trim() -ne '') {" ^
+                "Write-Output $i;" ^
+                "break;" ^
+            "}" ^
+        "}"') do (
+        set /a "skip_lines=%%i"
+    )
+    
+    if not defined skip_lines (
+        echo 错误：无法找到数据起始位置。
+        del "Cangjie5.txt" 2>nul
+        del "header.tmp" 2>nul
+        pause
+        exit /b 1
+    )
+    echo 警告：使用备选方法找到数据起始位置，跳过前 %skip_lines% 行
+) else (
+    echo 找到数据起始位置，跳过前 %skip_lines% 行，从"日	a"字开始提取数据
+)
+
+:: 使用健壮的 PowerShell 脚本合并为无 BOM UTF-8
+echo 正在生成 cangjie5.dict.yaml...
+powershell -Command ^
+    "$ErrorActionPreference = 'Stop';" ^
+    "try {" ^
+        "$enc = New-Object System.Text.UTF8Encoding($false);" ^
+        "$writer = New-Object System.IO.StreamWriter('cangjie5.dict.yaml', $false, $enc);" ^
+        "$header = Get-Content 'header.tmp' -Encoding UTF8;" ^
+        "foreach ($line in $header) {" ^
+            "$writer.WriteLine([string]$line);" ^
+        "};" ^
+        "$content = Get-Content 'Cangjie5.txt' -Encoding UTF8;" ^
+        "for ($i = [int]%skip_lines%; $i -lt $content.Length; $i++) {" ^
+            "$writer.WriteLine([string]$content[$i]);" ^
+        "};" ^
+        "$writer.Flush();" ^
+        "$writer.Close();" ^
+        "Write-Output '文件生成成功';" ^
+    "} catch {" ^
+        "Write-Error '文件生成失败: $($_.Exception.Message)';" ^
+        "exit 1;" ^
+    "}"
+
+:: 验证输出
+if not exist "cangjie5.dict.yaml" (
+    echo 错误：未能生成 cangjie5.dict.yaml！
+    del "header.tmp" 2>nul
+    del "Cangjie5.txt" 2>nul
     exit /b 1
 )
 
-:: 合并文件（统一使用UTF8编码处理）
-echo 正在生成最终文件...
-powershell -Command "Get-Content header.tmp | Out-File cangjie5.dict.yaml -Encoding UTF8"
-powershell -Command "Get-Content Cangjie5.txt -Encoding UTF8 | Select-Object -Skip %skip_lines% | Add-Content cangjie5.dict.yaml -Encoding UTF8"
+:: 检查生成的文件是否包含数据
+for /f %%i in ('powershell -Command "(Get-Content 'cangjie5.dict.yaml' -Encoding UTF8 ^| Select-String '^日\s').Length"') do (
+    set "data_lines=%%i"
+)
+if "!data_lines!"=="0" (
+    echo 警告：生成的文件可能不包含有效数据
+) else (
+    echo 生成的文件包含 !data_lines! 行有效数据
+)
 
-:: 清理临时文件
-del header.tmp
-del Cangjie5.txt
-echo 处理完成，文件已保存为cangjie5.dict.yaml
-endlocal
-
+:: 清理
+del "header.tmp" 2>nul
+del "Cangjie5.txt" 2>nul
+echo 处理完成，文件已保存为 cangjie5.dict.yaml（UTF-8 无 BOM）
 goto :eof
 
 :deploy
-start "" "%cd%\..\weasel\WeaselDeployer.exe" /deploy
-echo 已重新布署
+if exist "%cd%\..\weasel\WeaselDeployer.exe" (
+    start "" "%cd%\..\weasel\WeaselDeployer.exe" /deploy
+    echo 已重新布署
+) else (
+    echo 警告：WeaselDeployer.exe 未找到，跳过部署。
+)
 goto :eof
 
 :aniu.trime.yaml
-echo 下载aniu.trime.yaml
-::发布页面：https://github.com/goodaniu/rime-aniu/blob/main/aniu.trime.yaml
+echo 下载 aniu.trime.yaml
 %Curl_Download% -O "%GH_PROXY%/https://github.com/goodaniu/rime-aniu/raw/refs/heads/main/aniu.trime.yaml"
 goto :eof
 
 :end
-timeout /t 3 /nobreak
+timeout /t 3 /nobreak >nul
+popd
+exit /b 0
