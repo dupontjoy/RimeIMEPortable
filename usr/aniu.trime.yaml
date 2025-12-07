@@ -6,7 +6,7 @@
 # encoding: utf-8
 
 config_version: "3.3.3"
-name: 同文风改(aniu)          #方案名称
+name: aniu           #方案名称
 author: 风花絮        #作者信息
 
 ##======定制个性化键盘======
@@ -56,9 +56,9 @@ height:
 
 #键盘高度
 round_corner:
-  1: &round1 12 #按键圆角半径
+  1: &round1 4 #按键圆角半径
   2: &round2 0 #候选窗口圆角
-  3: &round3 12 #回车键圆角
+  3: &round3 4 #回车键圆角
 
 #界面风格、功能开关
 style:
@@ -318,7 +318,7 @@ liquid_keyboard:
   row_land: 5         #横屏每屏最多显示多少行按键
   key_height: 40      #按键高度
   key_height_land: 40 #横屏模式按键高度
-  single_width: 60    #single类型的按键宽度
+  single_width: 54    #single类型的按键宽度
   vertical_gap: 8     #纵向按键间隙
   margin_x: 2       #左右按键间隙的1/2
   ascii_mode: 1
@@ -331,7 +331,7 @@ liquid_keyboard:
       - Return2
       - Hide
       - liquid_keyboard_tabs
-  keyboards: [emoji, math, ascii, cn, clipboard, symbol, collection, draft, symbollist, list, jiaobiao, history, markdown, zhibiao, ids, tabs, pinyin, script_symbols, jp, grease, rusa, korea, lation, yinbiao, unit, yanwenzi, combing, emoji_full, candidate]  #tab列表
+  keyboards: [emoji, clipboard, math, ascii, cn, unit, symbol, collection, draft, symbollist, list, jiaobiao, history, markdown, zhibiao, ids, tabs, pinyin, script_symbols, jp, grease, rusa, korea, lation, yinbiao, yanwenzi, combing, emoji_full, candidate]  #tab列表
   tabs:
     name: 更多
     type: TABS
@@ -345,12 +345,12 @@ liquid_keyboard:
     name: "mark"
     type: SYMBOL
     keys: #骰子
-      - {click: '{表格}', label: 表格}
-      - {click: '{代码块}{Up}{Up}', label: 代码块}
-      - {click: '{链接}{Left}{Left}{Left}',label: 链接}
-      - {click: '{标注}',label: 标注}
-      - {click: '****{Left}{Left}',label: 加粗}
-      - {click: '{待办}',label: 待办}
+      - 表格: "{表格}" 
+      - 代码块: '{代码块}{Up}{Up}'
+      - 链接: '{链接}{Left}{Left}{Left}'
+      - 标注: '{标注}'
+      - 加粗: '****{Left}{Left}'
+      - 待办: '{待办}'
       
       
   emoji:
@@ -413,7 +413,7 @@ liquid_keyboard:
   unit:
     name: 单位
     type: SINGLE
-    keys: "℃¥$€฿￡㎡m³℉￥£￠₠¹²³⁴⁵ⁿ⁶⁷⁸⁹⁰ˣ⁺⁻⁼⁽⁾½⅓¼⅔¾₁₂₃₄₅ₙ₆₇₈₉₀ₓ₊₋₌₍₎℅"
+    keys: "℃¥$€฿￡㎡㎥°℉￥£￠₠¹²³⁴⁵ⁿ⁶⁷⁸⁹⁰ˣ⁺⁻⁼⁽⁾½⅓¼⅔¾₁₂₃₄₅ₙ₆₇₈₉₀ₓ₊₋₌₍₎℅㎏㎎㎍㏂㏘"
   list:
     name: 列表
     type: SINGLE
@@ -479,6 +479,90 @@ liquid_keyboard:
     name: "制表"
     type: SINGLE
 
+tool_bar:
+  button_spacing: 2 # 按钮间距
+  button_font: iconfont.ttf # 按钮字体
+
+  # 左侧固定主按钮配置
+  primary_button:
+    # 背景样式设置
+    background:
+      type: circle           # 高亮形状 (可选值: circle|rectangle)
+      corner_radius: 10      # 圆角半径
+      bg_normal: 0x00        # 正常状态背景颜色
+      bg_highlight: hilited_candidate_button_color  # 高亮状态背景色
+      vertical_inset: 4      # 垂直方向内缩量
+      horizontal_inset: 0    # 水平方向内缩量
+    # 前景内容设置
+    foreground:
+      style: "ic@dots_horizontal"         # 内置质感设计图标样式（以ic@开头）
+      fg_normal: candidate_text_color  # 正常状态前景色 (本地图片不允许着色)
+      # fg_highlight:        # 高亮状态前景色
+      padding: 10            # 前景内容与背景边界的内边距
+      # size: [120, 24]      # 视图控件宽高，非前景样式宽高
+    # 按钮点击事件
+    action: menu_keyboard
+
+
+  hide_button: &hide_button
+    foreground:
+      style: "ic@keyboard_close"
+      fg_normal: candidate_text_color
+    action: Hide
+
+  emoji_button: &emoji_button
+    foreground:
+      style: "ic@emoticon"
+    # 前景样式可以为空，使用默认样式，按钮将显示为 action 的 label
+    action: liquid_keyboard_emoji
+
+  clipboard_button: &clipboard_button
+    foreground:
+      style: "ic@clipboard"
+    action: liquid_keyboard_clipboard
+
+  edit_button: &edit_button
+    foreground:
+      style: "ic@cursor_text"
+    action: Keyboard_numberb
+
+  ascii_mode_button: &ascii_mode_button
+    foreground:
+      option_styles: ["中", "En"] # 样式也可以为表，将根据 action 的 toggle 决定
+      font_size: 18  # 按钮字体大小
+      padding: 8
+    action: Mode_switch
+    
+  charset_switch_button: &charset_switch_button
+    foreground:
+      option_styles: ["常", "扩"] # 样式也可以为表，将根据 action 的 toggle 决定
+      font_size: 18  # 按钮字体大小
+      padding: 10
+    action: Charset_switch
+
+  full_shape_button: &full_shape_button
+    foreground:
+      option_styles: ["ic@moon_first_quarter", "ic@moon_full"]
+    action: Zenkaku_Hankaku
+    
+  punct_button: &punct_button
+    foreground:
+      option_styles: ["，。", ",."]
+    action: Punct_switch
+
+  unit_button: &unit_button
+    foreground:
+      style: "ic@weight-kilogram"
+    action: liquid_keyboard_unit
+    
+  xiegang_button: &xiegang_button
+    foreground:
+      style: "/"
+    action: "/"
+
+  # 右侧按钮列表（从右向左排列）
+  buttons: [ *hide_button, *xiegang_button, *emoji_button, *unit_button, *clipboard_button, *edit_button, *ascii_mode_button, *punct_button ]
+
 #键盘布局
 preset_keyboards:
   default:
@@ -499,7 +583,7 @@ preset_keyboards:
       {click: 7, long_click: 7, swipe_up: "&", label_symbol: '&',__include: mystyle/key_num},
       {click: 8, long_click: 8, swipe_up: "*", label_symbol: '*',__include: mystyle/key_num},
       {click: 9, long_click: 9, swipe_up: '\', label_symbol: '\',__include: mystyle/key_num},
-      {click: 0, long_click: 0, swipe_up: fanxiegang, swipe_down: /, label_symbol: '/',__include: mystyle/key_num},
+      {click: 0, long_click: 0, swipe_up: "/", swipe_down: fanxiegang, label_symbol: '/',__include: mystyle/key_num},
     # 第一行
       {click: q, long_click: Q, label_symbol: '·',swipe_up: '·',__include: mystyle/key_abc1},
       {click: w, long_click: W, label_symbol: '+', swipe_up: '+',__include: mystyle/key_abc1},
@@ -638,20 +722,6 @@ preset_keyboards:
       - { click: Settings, __include: mystyle/funcs}
       
       
-  markdown1:
-    author: "aniu"
-    name: Markdown键盘布局
-    ascii_mode: 1
-    width: 20
-    keys:
-      - {click: 表格}
-      - {click: 代码块}
-      - {click: 链接}
-      - { click: BackSpace, swipe_left: BackToPreviousSyllable, swipe_up: Clears, key_back_color: c2}
-      - { click: Keyboard_last_lock,key_back_color: c3}
-
-
-
 
   letter:
     author: "暖暖"
@@ -3551,7 +3621,7 @@ preset_keys:
   Keyboard_default: { label: 返回, functional: false, send: Eisu_toggle, select: .default }
   Keyboard_switch: { label: 键盘, functional: true, send: Eisu_toggle, select: .next }
   Keyboard_number: { label: 123, functional: false, send: Eisu_toggle, select: number }
-  Keyboard_numberb: { label: 123, functional: false, send: Eisu_toggle, select: numberb }
+  Keyboard_numberb: { label: 123, functional: false, send: Eisu_toggle, select: edit }
   Keyboard_symbols: { label: 更多, functional: false, send: Eisu_toggle, select: symbols }
   Keyboard_move: { label: ❖, functional: true, send: Eisu_toggle, select: move }
   Keyboard_next: { label: 后退, functional: false, send: Eisu_toggle, select: .next }
@@ -3563,6 +3633,7 @@ preset_keys:
   liquid_keyboard_tabs: { label: 更多, send: function, command: liquid_keyboard, option: "更多" }
   liquid_keyboard_emoji: { label: 🙂, send: function, command: liquid_keyboard, option: "emoji" }
   liquid_keyboard_clipboard: { label: 剪贴, send: function, command: liquid_keyboard, option: "剪贴" }
+  liquid_keyboard_unit: { label: 单位, send: function, command: liquid_keyboard, option: "单位" }
   # rime状态
   Mode_switch: {toggle: ascii_mode, functional: false, send: Mode_switch, states: [ 中, 英 ]}
   Zenkaku_Hankaku: {toggle: full_shape, send: Mode_switch, states: [ 半角, 全角 ]}
@@ -3795,11 +3866,6 @@ preset_keys:
     label: '编辑'
     select: edit
     send: Eisu_toggle
-  Keyboard_markdown:
-    function: false
-    label: '编辑'
-    select: markdown1
-    send: Eisu_toggle
   liquid_keyboard_ascii:
     command: liquid_keyboard
     label: "En"
@@ -3866,11 +3932,20 @@ preset_keys:
   select3: 
     label: "三选"
     send: 3
+  menu_keyboard: 
+    label: 菜单
+    send: function
+    command: menu_keyboard
   
   #========Markdown=======
-  表格: {commit: "|||\n|:-:|:-:|\n|||", label: 表格, functional: false}
-  代码块: {commit: "```\n\n```", label: 代码块, functional: false}
-  链接: {commit: '[]()', label: 链接}
-  标注: {commit: ">[!note] "}
-  待办: {commit: "- [ ] "}
+  表格: 
+    commit: "|||\n|:-:|:-:|\n|||"
+  代码块: 
+    commit: "```\n\n```"
+  链接: 
+    commit: '[]()'
+  标注: 
+    commit: ">[!note] "
+  待办: 
+    commit: "- [ ] "
   # =======自定义完毕=======
