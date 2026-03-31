@@ -2,7 +2,7 @@ __build_info:
   rime_version: 1.13.1
   timestamps:
     weasel: 1749011884
-    weasel.custom: 1774880733
+    weasel.custom: 1774965005
 app_options:
   cmd.exe:
     ascii_mode: true
@@ -497,7 +497,7 @@ style:
   comment_font_face: "Microsoft YaHei"
   comment_font_point: 14
   display_tray_icon: false
-  font_face: "TH-Tshyn-P0, TH-Tshyn-P1, TH-Tshyn-P2, TH-Tshyn-P16"
+  font_face: "Microsoft YaHei, TH-Tshyn-P0, TH-Tshyn-P1, TH-Tshyn-P2, TH-Tshyn-P16"
   font_point: 14
   fullscreen: false
   horizontal: false
