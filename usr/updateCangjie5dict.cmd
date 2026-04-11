@@ -5,9 +5,6 @@ setlocal enabledelayedexpansion
 title 倉頡五代碼表智能更新器
 color 0a
 
-:: 最小化当前窗口
-if not "%1"=="min" start /min "" "%~f0" min & exit /b
-
 pushd %~dp0
 
 :: 下载工具配置
