@@ -66,7 +66,8 @@ patch:
   key_binder/bindings:
     - { when: has_menu, accept: comma, send: comma } #逗号
     - { when: has_menu, accept: period, send: period } #句号
-    - { accept: "Shift+space", toggle: noop, when: always} #取消全半角切换
+  key_binder/bindings/+:
+    - { accept: "Shift+space", send: "Shift+space", when: always } #解绑Shift+space，而且也能让Shift+space时输出空格选字上屏
   
 #中文, 半角, 中文標點, 繁體漢字, 通用字集
   switches:
