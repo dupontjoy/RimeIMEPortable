@@ -8,9 +8,9 @@
 
 #### 個人碼表：倉頡五代
 
-3个custom文件都是必須的
-
-編碼以「z」開頭（兼容漢字「zc」，部首「zr」，筆畫「zs」，表意文字描述字符「zi」，算籌符號「zn」，其他符號「zf」）
+- 新增了更新码表批处理
+- 3个custom文件都是必須的
+- 編碼以「z」開頭（兼容漢字「zc」，部首「zr」，筆畫「zs」，表意文字描述字符「zi」，算籌符號「zn」，其他符號「zf」）
 
 #### 重要设置
 
@@ -25,7 +25,7 @@ patch:
     ascii_mode: true
    mpv.exe:
     ascii_mode: true
-  "style/font_face": "TH-Tshyn-P1"
+  "style/font_face": "Microsoft YaHei, TH-Tshyn-P0, TH-Tshyn-P1, TH-Tshyn-P2, TH-Tshyn-P16"
 ````
 
 #### 倉頡輸入法相關書籍
@@ -49,3 +49,7 @@ https://github.com/rime/home/wiki
 #### 最新码表
 
 https://github.com/Jackchows/Cangjie5
+
+#### Trime手机同文输入法
+
+aniu.trime.yaml为手机同文输入法主题：https://github.com/goodaniu/rime-aniu/blob/main/aniu.trime.yaml
