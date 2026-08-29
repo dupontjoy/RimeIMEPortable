@@ -74,8 +74,8 @@ echo 版本比较结果: %need_update%
 goto :eof
 
 :update_cangjie5_dict
-echo. [下载] %GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt
-%Curl_Download% -O "%GH_PROXY%/https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt"
+echo. [下载] %GH_PROXY%https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt
+%Curl_Download% -O "%GH_PROXY%https://github.com/Jackchows/Cangjie5/raw/master/Cangjie5.txt"
 
 if not exist "Cangjie5.txt" (
     echo 错误：下载失败，Cangjie5.txt 未找到。
@@ -210,7 +210,7 @@ goto :eof
 
 :tongwenfeng
 echo 下载 tongwenfeng.trime.custom.yaml
-%Curl_Download% -O "%GH_PROXY%/https://github.com/goodaniu/rime-aniu/raw/refs/heads/main/tongwenfeng.trime.custom.yaml"
+%Curl_Download% -O "%GH_PROXY%https://github.com/goodaniu/rime-aniu/raw/refs/heads/main/tongwenfeng.trime.custom.yaml"
 goto :eof
 
 :end
