@@ -1,9 +1,9 @@
 @Echo Off
 Title 小狼毫绿色版安装工具by大水牛
 
-::自动以管理员身份运行bat文件
+::自动以管理员身份运行bat文件（Win11 兼容：改用 PowerShell 提权，替代被封禁的 mshta）
 cd /d %~dp0
-%1 start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
+%1 powershell -NoProfile -Command "Start-Process cmd -ArgumentList '/c','\"%~f0\"','::' -Verb RunAs" 2>nul && exit
 
 Pushd %~dp0
 If "%PROCESSOR_ARCHITECTURE%"=="AMD64" (Set a="WeaselSetup.exe"&Set b=%SystemRoot%\SysWOW64) Else (Set a="WeaselSetup.exe"&Set b=%SystemRoot%\system32)
